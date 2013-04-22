@@ -24,14 +24,29 @@ define([
 					}
 				}
 			},
+			respondToClose: function(){
+				return window.confirm('really close');
+			},
+			getTemplateData: function(self){
+				return {
+					templateDataObject: {
+						// view_id : self.cid
+					}
+				}
+			},
 			shouldCloseActivePopups: true
 		},
 		setContent: function(){},
 		refresh: function(){},
 		close: function(){
-			console.log('%c PopupView:: close', 'color:#996666');
-			this.clearSubviews();
-			this.remove();
+			var ans = this.delegate.respondToClose();
+			if (ans) {
+				console.log('%c PopupView:: close', 'color:#996666');
+				this.clearSubviews();
+				// this.remove();
+				this.trigger('popup:close', this);
+			}
+			return ans;
 		},
 		// addView: function(){
 		// 	var popupView = this.delegate.getPopupView();
@@ -49,7 +64,12 @@ define([
 			console.log('%c Delegate:: protocol methods:', 'color:#CA00CA' , _.keys(this.delegate) );
 			console.log ( '%c Delegate:: call getPopupContent: ', 'color:#CA00CA', this.delegate.getPopupContent() );
 			_.extend( this._template, this.delegate.getPopupContent().template );
-			this.setTemplate({});
+			var tmpTemplate = this.delegate.getTemplateData(this).templateDataObject;
+			// this.setTemplate({
+			// 	view_id: this.cid,
+				
+			// });
+			this.setTemplate(tmpTemplate);
 		}
 
 	});

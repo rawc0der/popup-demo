@@ -124,8 +124,7 @@ define([
 					} else {
 						// default popup
 						console.log('%c PopupFactory::new:: Popup 4 (default)', 'color:green');
-						console.log('%c PopupFactory::delegate: ', 'color:green', this.getDelegate('delegate4').name)
-						return this.buildPopup(this.getDelegate('delegate4'));
+						return new PopupView({});
 					}
 					
 				},
@@ -148,9 +147,19 @@ define([
 							getPopupContent: function(){
 								return {
 									template: {
-										templateString: '<div class="popup1"> Popup 1 type </div>'
+										templateString: '<div class="popup1"> Popup 1 ID: <%= view_id %> <button class="close"> X </button> </div>'
 									}
 								}
+							},
+							getTemplateData: function(self){
+								return {
+									templateDataObject: {
+										view_id : self.cid
+									}
+								}
+							},
+							respondToClose: function(){
+								return window.confirm('really close ?');
 							},
 					},
 					delegate2: {
@@ -162,34 +171,42 @@ define([
 							getPopupContent: function(){
 								return {
 									template: {
-										templateString: '<div class="popup2"> Popup 2 type </div>'
+										templateString: '<div class="popup2"> Popup 2 ID: <%= view_id %> <button class="close"> X </button>   </div>',									}
+								}
+							},
+							getTemplateData: function(self){
+								return {
+									templateDataObject: {
+										view_id : self.cid
 									}
 								}
+							},
+							respondToClose: function(){
+								return window.confirm('really close ?');
 							},						
 					},
 					delegate3: {
 							name: 'Delegate3',
-							shouldCloseActivePopups: true,
+							shouldCloseActivePopups: false,
 							getPopupView: function(){},
 							getPopupContent: function(){
 								return {
 									template: {
-										templateString: '<div class="popup3"> Popup 3 type </div>'
+										templateString: '<div class="popup3"> Popup 3 ID: <%= view_id %> <button class="close"> X </button> </div>',
 									}
 								}
 							},
-					},
-					delegate4: {
-							name: 'Delegate4',
-							shouldCloseActivePopups: true,
-							getPopupView: function(){},
-							getPopupContent: function(){
+							getTemplateData: function(){
+								var date = new Date();
 								return {
-									template: {
-										templateString: '<div class="popup4"> Popup Default type </div>'
+									templateDataObject: {
+										view_id : date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()
 									}
 								}
-							},						
+							},
+							respondToClose: function(){
+								return window.confirm('really close ?');
+							},
 					}
 				}
 			};
@@ -208,7 +225,7 @@ define([
 				}
 			});
 
-			new XPopup().renderTo( $('#display_wrapper'), true );
+			// new XPopup().renderTo( $('#display_wrapper'), true );
 
 		} // end start
 

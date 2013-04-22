@@ -22,16 +22,23 @@ define([
 				this.closeAll();
 			}
 			console.log( '%c PopupManager::Adding new Popup to Manager', 'color:blue', popup )
+			popup.on('popup:close', function(instance){
+				var idx =  _.indexOf(this._subviews, instance);
+				this.removePopup(idx);
+			}, this);
 			this.addSubview(popup);
 			this.renderSubviews();
 		},
-		removePopup: function(){},
+		removePopup: function(idx){
+			this.removeSubview(idx);
+		},
 
 		closeAll: function(){
 			console.log('%c PopupManager::Closing All', 'color:blue');
 			_.map(this._subviews, function(subv){
-				subv.close();
-			});
+				subv.close()
+			}, this);
+	
 			this.clearSubviews();
 		},
 		openAll: function(){},

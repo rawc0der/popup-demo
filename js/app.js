@@ -3,9 +3,9 @@ define([
   'underscore', 
   'backbone',
   'controllers/MyController',
-  'modules/MyModule'
+  'controllers/PopupController'
 
-], function($, _, Backbone, MyController, MyModule){
+], function($, _, Backbone, MyController, PopupController){
   /**
    * Main Application File Module
    * Store Components inside this object for global refs handles
@@ -28,9 +28,9 @@ define([
 
       },
 
-      Controller: MyController,
+      Controller: PopupController,
 
-      CustomModule: MyModule
+      // CustomModule: MyModule
 
     });
 

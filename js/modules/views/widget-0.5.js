@@ -175,13 +175,19 @@ define(['underscore', 'backbone'], function(_, Backbone){
             this.container =  container$el.length ? container$el : container$el.prevObject ;
             if (render === true) this.render();
         },
-        
+        //// DEPRECATED        
         replaceContent: function(HTML, delegate){
             if (delegate === true) this.undelegateEvents();
             this.$el.replaceWith(HTML);
             this.setElement(HTML, true);
             if (delegate === true) this.delegateEvents();
             if(this._config.debug === true) console.log('%c Widget::replaceContent::$el', 'color:red', this.$el);
+        },
+
+        replaceContentWith: function(data){
+            $(this.el).empty();
+            $(this.el).html( this.processTemplate( data ) );
+            this.delegateEvents();
         },
         
         remove: function(){

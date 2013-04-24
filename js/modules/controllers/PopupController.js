@@ -192,6 +192,7 @@ define([
 								if ( this.flags.isCloseable === true ) {
 									return window.confirm('really close');
 								}
+								return false
 							},
 
 							afterRemove: function(){
@@ -224,10 +225,10 @@ define([
 									return false;
 							},
 
-							afterAdd: function(answer){
-								console.log('%c Delegate::After Add:: ', 'color:#CA00CA', answer)
+							afterAdd: function(){
+								console.log('%c Delegate::After Add:: ', 'color:#CA00CA')
 								// this.popup.renderTemplateData()
-								return answer
+								return true
 							},
 
 							beforeUpdate: function(){
@@ -236,30 +237,31 @@ define([
 									return false;
 							},
 
-							afterUpdate: function(answer){
-								console.log('%c Delegate::After Update:: ', 'color:#CA00CA', answer)
-								return answer;
+							afterUpdate: function(){
+								console.log('%c Delegate::After Update:: ', 'color:#CA00CA')
+								return true;
 							},
 
 							beforeRemove: function(){
 								console.log('%c Delegate::Before Remove:: isCloseable:', 'color:#CA00CA', this.flags.isCloseable)
 								// custom logic
 								if ( this.flags.isCloseable === true ) {
+									// return true;
 									return window.confirm('really close');
 								}
 							},
 
-							afterRemove: function(answer){
-								console.log('%c Delegate::After Remove:: answer:', 'color:#CA00CA', answer)
+							afterRemove: function(){
+								console.log('%c Delegate::After Remove:: ', 'color:#CA00CA')
 								// custom logic
-								return answer;
+								return true;
 							},
 
 							flags: {
 								shouldCloseActivePopups: false,   // stackable
 								observable: true,   			  // observable 
 								activeState: true,				  // active
-								isCloseable: true				  // closeable
+								isCloseable: false				  // closeable
 							}	
 					}
 				}

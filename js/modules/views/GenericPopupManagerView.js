@@ -21,7 +21,7 @@ define([
 			this._subviews = _newSubviewArr;			
 			for(var i = 0; i < this._subviews.length; i++){
 				this._subviews[i].stackIndex = i;
-				// this._subviews[i].refresh();
+				this._subviews[i].refreshSubviews();
 			}
 		},
 
@@ -57,10 +57,11 @@ define([
 
 		closeAll: function(){
 			console.log( '%c PopupManager::Close All active Popups', 'color:blue' )
-			_.map(this._subviews, function(subv){
+			var tmpViews = _.clone( this._subviews);
+			_.map(tmpViews, function(subv){
 				subv.close()
 			}, this);
-			this.clearSubviews();
+			// this.clearSubviews();
 		},
 		
 		initialize: function(){

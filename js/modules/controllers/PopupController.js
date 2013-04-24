@@ -3,9 +3,11 @@ define([
  'backbone',
  'views/GenericPopupView',
  'views/GenericPopupManagerView',
- 'widget'
+ 'views/MyView',
+ 'widget',
+ 'views/loader'
 
-], function(_, Backbone, Popup, PopupManager, Widget){
+], function(_, Backbone, Popup, PopupManager, MyView, Widget, Loader){
 	/**
 	 * Controller Object responsible for View construction and application event flow
 	 * @type {[Object]}
@@ -25,8 +27,11 @@ define([
 
 			$('body').append( $('<div id="display_wrapper">') );
 			
-			$('#display_wrapper').append($('<a href="#" id="pop1">Popup 1 </a>')).append($('<a href="#" id="pop2">Popup 2 </a>'))
-			.append($('<a href="#" id="pop3">Popup 3 </a>')).append($('<a href="#" id="pop4">Popup 4 (default) </a>'))
+			$('#display_wrapper')
+			.append($('<a href="#" id="pop1">Label ( ! stackable  || observable ||  active || closeable ) </a><br>'))
+			.append($('<a href="#" id="pop2">Popup Panel with Custom View ( ! stackable  || observable ||  active || ! closeable )</a><br>'))
+			.append($('<a href="#" id="pop3">Popup 3 </a><br>'))
+			.append($('<a href="#" id="pop4">Popup 4 (default) </a><br>'))
 			
 			var PopupFactory = {
 				getPopup: function(popID, delegate){
@@ -65,73 +70,197 @@ define([
 				delegateType: {
 					delegate1:  {
 							name: 'Delegate1',
-							flags: { shouldCloseActivePopups: false },
-							getPopupView: function(){
-								return false;
-							},
-							getPopupContent: function(){
+
+							getTemplateContent: function(){
 								return {
-									template: {
-										templateString: '<div class="popup1"> Popup 1 ID: <%= view_id %> <button class="close"> X </button> </div>'
-									}
+									popup_title: '<div>Digi clock ! </div> <div id="digi"> </div>'
+								};
+							},
+
+							getPopupView: function(opt){
+								return new Widget(opt);
+							},
+
+							beforeAdd: function(){
+								console.log('%c Delegate::Before Add:: ', 'color:#CA00CA' )
+								this.popup.renderTemplateData()
+								if ( this.flags.activeState === true ) return true;
+									return false;
+							},
+
+							afterAdd: function(){
+								console.log('%c Delegate::After Add:: ', 'color:#CA00CA')
+								// this.popup.renderTemplateData()
+								return true;
+							},
+
+							beforeUpdate: function(){
+								console.log('%c Delegate::Before Update:: ', 'color:#CA00CA')
+								if ( this.flags.activeState === true ) return true;
+									return false;
+							},
+
+							afterUpdate: function(answer){
+								console.log('%c Delegate::After Update:: ', 'color:#CA00CA')
+								setInterval(function(){
+									var min = new Date().getMinutes();
+									var hours = new Date().getHours();
+									var sex = new Date().getSeconds();
+									var time = $('<div>'+hours+':'+min+':'+sex+'</div>')
+				
+									$('#digi').html(time[0])
+								}, 1000);
+								return true;
+							},
+
+							beforeRemove: function(){
+								console.log('%c Delegate::Before Remove:: isCloseable:', 'color:#CA00CA', this.flags.isCloseable)
+								// custom logic
+								if ( this.flags.isCloseable === true ) {
+									return window.confirm('really close');
 								}
 							},
-							getTemplateData: function(self){
-								return {
-									templateDataObject: {
-										view_id : self.cid
-									}
-								}
+
+							afterRemove: function(){
+								console.log('%c Delegate::After Remove:: answer:', 'color:#CA00CA')
+								// custom logic
+								return true;
 							},
-							respondToClose: function(){
-								return window.confirm('really close ?');
-							},
+
+							flags: {
+								shouldCloseActivePopups: true,   // stackable
+								observable: true,   			  // observable 
+								activeState: true,				  // active
+								isCloseable: true				  // closeable
+							}
 					},
 					delegate2: {
 							name: 'Delegate2',
-							flags: { shouldCloseActivePopups: true },
-							getPopupView: function(){
-								return new Widget({ template: { templateString: '<h5> Popup View </h5>' } });
-							},
-							getPopupContent: function(){
+
+							getTemplateContent: function(){
 								return {
-									template: {
-										templateString: '<div class="popup2"> Popup 2 ID: <%= view_id %> <button class="close"> X </button>   </div>',									}
+									popup_title: "Popup panel"
+								};
+							},
+
+							getPopupView: function(opt){
+								return new Widget(opt);
+							},
+
+							beforeAdd: function(){
+								console.log('%c Delegate::Before Add:: ', 'color:#CA00CA')
+								
+								if ( this.flags.activeState === true ) return true;
+									return false;
+							},
+
+							afterAdd: function(){
+								console.log('%c Delegate::After Add:: ', 'color:#CA00CA')
+								// this.popup.renderTemplateData()
+								this.popup.$el.css({
+									width: '300px',
+									// height: '600px',
+									border: '2px solid #496666',
+									padding: '5px'
+								})
+								var self = this;
+								this.popup.addSubview( new Loader() );
+								this.popup.updatePopup();
+								// this.popup.refreshSubviews();
+								window.setTimeout(function(){
+									self.popup.clearSubviews();
+									self.popup.addPopupView(new MyView())
+								}, 2000);
+								return true
+							},
+
+							beforeUpdate: function(){
+								console.log('%c Delegate::Before Update:: ', 'color:#CA00CA')
+								if ( this.flags.activeState === true ) return true;
+									return false;
+							},
+
+							afterUpdate: function(answer){
+								console.log('%c Delegate::After Update:: ', 'color:#CA00CA')
+								// this.popup.close();
+								return true;
+							},
+
+							beforeRemove: function(){
+								console.log('%c Delegate::Before Remove:: isCloseable:', 'color:#CA00CA', this.flags.isCloseable)
+								// custom logic
+								if ( this.flags.isCloseable === true ) {
+									return window.confirm('really close');
 								}
 							},
-							getTemplateData: function(self){
-								return {
-									templateDataObject: {
-										view_id : self.cid
-									}
-								}
+
+							afterRemove: function(){
+								console.log('%c Delegate::After Remove:: answer:', 'color:#CA00CA' )
+								// custom logic
+								return true;
 							},
-							respondToClose: function(){
-								return window.confirm('really close ?');
-							},						
+
+							flags: {
+								shouldCloseActivePopups: true,   // stackable
+								observable: true,   			  // observable 
+								activeState: true,				  // active
+								isCloseable: true				  // closeable
+							}				
 					},
 					delegate3: {
 							name: 'Delegate3',
-							flags: { shouldCloseActivePopups: true },
-							getPopupView: function(){},
-							getPopupContent: function(){
-								return {
-									template: {
-										templateString: '<div class="popup3"> Popup 3 ID: <%= view_id %> <button class="close"> X </button> </div>',
-									}
+
+							getTemplateContent: function(){
+								return { popup_title: new Date().getSeconds() };
+							},
+
+							getPopupView: function(opt){
+								return new Widget(opt);
+							},
+
+							beforeAdd: function(){
+								console.log('%c Delegate::Before Add:: ', 'color:#CA00CA')
+								if ( this.flags.activeState === true ) return true;
+									return false;
+							},
+
+							afterAdd: function(answer){
+								console.log('%c Delegate::After Add:: ', 'color:#CA00CA', answer)
+								// this.popup.renderTemplateData()
+								return answer
+							},
+
+							beforeUpdate: function(){
+								console.log('%c Delegate::Before Update:: ', 'color:#CA00CA')
+								if ( this.flags.activeState === true ) return true;
+									return false;
+							},
+
+							afterUpdate: function(answer){
+								console.log('%c Delegate::After Update:: ', 'color:#CA00CA', answer)
+								return answer;
+							},
+
+							beforeRemove: function(){
+								console.log('%c Delegate::Before Remove:: isCloseable:', 'color:#CA00CA', this.flags.isCloseable)
+								// custom logic
+								if ( this.flags.isCloseable === true ) {
+									return window.confirm('really close');
 								}
 							},
-							getTemplateData: function(){
-								var date = new Date();
-								return {
-									templateDataObject: {
-										view_id : date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()
-									}
-								}
+
+							afterRemove: function(answer){
+								console.log('%c Delegate::After Remove:: answer:', 'color:#CA00CA', answer)
+								// custom logic
+								return answer;
 							},
-							respondToClose: function(){
-								return window.confirm('really close ?');
-							},
+
+							flags: {
+								shouldCloseActivePopups: false,   // stackable
+								observable: true,   			  // observable 
+								activeState: true,				  // active
+								isCloseable: true				  // closeable
+							}	
 					}
 				}
 			};

@@ -186,7 +186,8 @@ define(['underscore', 'backbone'], function(_, Backbone){
 
         replaceContentWith: function(data){
             $(this.el).empty();
-            $(this.el).html( this.processTemplate( data ) );
+            $(this.el).html( $(this.processTemplate( data ) ).html() );
+            ///// ! $(this.processTemplate( data ) produced popup>>popup
             this.delegateEvents();
         },
         
